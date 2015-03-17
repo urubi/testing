@@ -101,7 +101,8 @@ fn main() {
     
     let def_type = def_type.unwrap();
     let def_qualifier = def_qualifier.unwrap();
-    
+    let mut defs: Vec<(String, String)> = vec![];
+    let mut longest: usize = 0;
     
     for line in stdin.lock().lines() {
         let mut line: String = line.unwrap();
@@ -115,12 +116,22 @@ fn main() {
         
         // segmenting line
         let words: Vec<&str> = line.words().collect();
-        if words.len() < 3 {continue;}
-        
-        // building rust equivalent
-        println!("{}{};", 
-            format!("{} {}:{} = ", &def_qualifier, words[1], &def_type), 
-            words[2..].connect(" ")
-        );
+        // make sure it's a definition with a value
+        if words.len() < 3 {continue;} 
+        // longest length for aesthetics
+        if longest < words[1].len() {longest = words[1].len();}
+        defs.push((words[1].to_string(), words[2..].connect(" ")));
     }
+    
+    // building rust equivalent
+    for &(ref name, ref value) in defs.iter() {
+        println!("{0:2$} = {1};", 
+            format!("{} {}:{}", &def_qualifier, name, &def_type), 
+            value,
+            longest + def_qualifier.len() + def_type.len() + 5
+        );    
+    }
+    
+    
+    
 }
